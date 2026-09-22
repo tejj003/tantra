@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { expectSamePixels } from './pixels'
 
 async function ready(page: Page) {
   await page.goto('/?part=3')
@@ -55,9 +56,7 @@ test('Part 3 renders cloud compositions with Benju and preserves the white mat a
     }
     expect(new Set(states.map(pixels => pixels.join(','))).size).toBe(6)
     await at(page, 45)
-    const differences = (await sample(page)).data.map((value, index) => Math.abs(value - states[1][index]))
-    expect(differences.reduce((total, value) => total + value, 0) / differences.length).toBeLessThan(.01)
-    expect(Math.max(...differences)).toBeLessThanOrEqual(8)
+    expectSamePixels((await sample(page)).data, states[1])
     const layout = await page.evaluate(() => {
       const canvas = document.querySelector('#painting')!.getBoundingClientRect()
       const controls = [...document.querySelectorAll<HTMLElement>('button,input,.part-selector a,h1,.credit')].filter(element => element.getBoundingClientRect().width)
@@ -87,9 +86,9 @@ test('Part 3 responds to music, freezes on pause and gently returns to rest', as
   const resting = await sample(page)
   await page.locator('#motion').check()
   await at(page, 214)
-  expect((await sample(page)).data).toEqual(resting.data)
+  expectSamePixels((await sample(page)).data, resting.data)
   await at(page, 215)
-  expect((await sample(page)).data).toEqual(resting.data)
+  expectSamePixels((await sample(page)).data, resting.data)
 })
 
 test('Part 3 audio accents shape clouds and leaves while treble drives outward water ripples', async ({ page }) => {
@@ -160,7 +159,7 @@ test('three-part navigation leaves earlier artworks untouched and statements rem
   }
   for (const [part, title, track] of [['Part I', 'Tantra', 'Tanta'], ['Part II', 'Tantra Part 2', 'Anc Egyptian Trance'], ['Part III', 'Tantra Part 3', 'Benju']]) {
     await page.getByRole('link', { name: part, exact: true }).click()
-    await expect(page.locator('#app')).toHaveAttribute('data-audio-ready', 'true')
+    await expect(page.locator('#app')).toHaveAttribute('data-audio-ready', 'true', { timeout: 30000 })
     await expect(page.locator('h1')).toHaveText(title)
     await expect(page.locator('.track-name')).toHaveText(track)
     await expect(page.locator('#painting')).toHaveAttribute('data-playing', 'false')

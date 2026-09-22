@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { readFile } from 'node:fs/promises'
+import { expectSamePixels } from './pixels'
 
 async function ready(page: Page) {
   await page.goto('/')
@@ -38,6 +39,10 @@ test('real track produces distinct framed compositions and deterministic seeks',
   await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
   for (const [width, height] of [[1440, 1000], [390, 844], [320, 640], [844, 430]]) {
     await page.setViewportSize({ width, height })
+    await expect.poll(() => page.locator('#painting').evaluate((canvas: HTMLCanvasElement) => {
+      const bounds = canvas.getBoundingClientRect(), scale = Number(canvas.dataset.scale)
+      return canvas.width === Math.floor(bounds.width * scale) && canvas.height === Math.floor(bounds.height * scale)
+    })).toBe(true)
     const signatures = []
     for (const time of [0, 42, 78, 124, 149]) {
       await at(page, time)
@@ -49,7 +54,7 @@ test('real track produces distinct framed compositions and deterministic seeks',
     }
     expect(new Set(signatures).size).toBe(5)
     await at(page, 42)
-    expect((await pixels(page)).data.join(',')).toBe(signatures[1])
+    expectSamePixels((await pixels(page)).data, signatures[1].split(',').map(Number))
     const geometry = await page.evaluate(() => {
       const canvas = document.querySelector('#painting')!.getBoundingClientRect()
       const controls = [...document.querySelectorAll<HTMLElement>('button,input,h1,.credit')].filter(element => element.getBoundingClientRect().width)

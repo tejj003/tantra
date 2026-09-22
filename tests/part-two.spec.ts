@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { expectSamePixels } from './pixels'
 
 async function ready(page: Page) {
   await page.goto('/?part=2')
@@ -57,9 +58,7 @@ test('Part 2 has its own music, distinct evolving art, and an intact white frame
     expect(new Set(states).size).toBe(6)
     await at(page, 48)
     const original = states[1].split(',').map(Number)
-    const differences = (await pixels(page)).data.map((value, index) => Math.abs(value - original[index]))
-    expect(differences.reduce((total, value) => total + value, 0) / differences.length, `Repeatable seek at ${width}px`).toBeLessThan(.01)
-    expect(Math.max(...differences)).toBeLessThanOrEqual(8)
+    expectSamePixels((await pixels(page)).data, original)
     const geometry = await page.evaluate(() => {
       const canvas = document.querySelector('#painting')!.getBoundingClientRect()
       const controls = [...document.querySelectorAll<HTMLElement>('button,input,h1,.track-name,.part-selector a,.credit')].filter(element => element.getBoundingClientRect().width)
@@ -124,9 +123,9 @@ test('Part 2 uses real audio energy, stops on pause and resolves to its resting 
   const resting = await pixels(page)
   await page.locator('#motion').check()
   await at(page, 180)
-  expect((await pixels(page)).data).toEqual(resting.data)
+  expectSamePixels((await pixels(page)).data, resting.data)
   await at(page, 181)
-  expect((await pixels(page)).data).toEqual(resting.data)
+  expectSamePixels((await pixels(page)).data, resting.data)
 })
 
 test('series navigation keeps Part 1 intact and Part 2 statement accessible', async ({ page }) => {
