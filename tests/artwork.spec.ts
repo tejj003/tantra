@@ -15,9 +15,16 @@ async function at(page: Page, time: number) {
 }
 async function pixels(page: Page) {
   return page.locator('#painting').evaluate((canvas: HTMLCanvasElement) => {
-    const sample = document.createElement('canvas'); sample.width = 160; sample.height = 90
-    const context = sample.getContext('2d')!; context.drawImage(canvas, 0, 0, 160, 90)
-    const data = [...context.getImageData(0, 0, 160, 90).data]
+    const context = canvas.getContext('webgl2')!
+    const rendered = new Uint8Array(canvas.width * canvas.height * 4)
+    context.readPixels(0, 0, canvas.width, canvas.height, context.RGBA, context.UNSIGNED_BYTE, rendered)
+    const data: number[] = []
+    for (let row = 0; row < 90; row++) for (let column = 0; column < 160; column++) {
+      const sourceRow = canvas.height - 1 - Math.floor((row + .5) * canvas.height / 90)
+      const sourceColumn = Math.floor((column + .5) * canvas.width / 160)
+      const offset = (sourceRow * canvas.width + sourceColumn) * 4
+      data.push(...rendered.subarray(offset, offset + 4))
+    }
     let coloured = 0, border = 0, cleanBorder = 0
     for (let row = 0; row < 90; row++) for (let column = 0; column < 160; column++) {
       const offset = (row * 160 + column) * 4
