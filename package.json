@@ -1,0 +1,26 @@
+{
+  "name": "tantra",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/three": "^0.186.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "lucide": "^1.47.0",
+    "mediabunny": "^1.58.1",
+    "three": "^0.186.0"
+  }
+}

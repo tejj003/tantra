@@ -1,0 +1,43 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+artifacts/
+test-results/
+playwright-report/
+.env
+.env.*
+dist
+dist-ssr
+*.local
+
+# Private working notes and agent configuration
+DESIGN.md
+src/assets/hero.png
+AGENTS.md
+.agents/
+.copilot/
+.github/copilot-instructions.md
+.github/instructions/
+.github/prompts/
+.github/agents/
+.github/skills/
+*.pem
+*.key
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
