@@ -42,9 +42,3 @@ npm run dev
 ```
 
 For a production build, run `npm run build`. Browser checks run with `npx playwright install chromium webkit` followed by `npm test` after building.
-
-## Credits
-
-Original artwork and music by Tejj. Visual inspiration includes the centred colour fields, symmetry and layered forms of Neo-Tantric painting. No reference paintings are reproduced in the works.
-
-Third-party software and fonts retain their respective licences; [notices](public/licenses/README.md) accompany the published site. Public availability of the artwork and music does not grant a separate licence to redistribute them.
